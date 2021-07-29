@@ -42,6 +42,7 @@ def makeTable(contestsListTr):
     for con in contestsListTr[1:]:
         conNumber = con["data-contestid"]
         conData = con.find_all('td')
+        print(bytes(conNumber, 'utf-8'))
         conValues = (conData[0].text[2:-6],
                      conData[2].text.replace('\n','').replace('\r',''),
                      conData[3].text.replace(' ','').replace('\n','').replace('\r',''),
@@ -55,18 +56,71 @@ def makeTable(contestsListTr):
 
 
 def makeSetup(something = 0):
-    win.destroy()
+    contest = contest_var.get()
+    if contest.isdigit():
+        win.destroy()
+        ContestSetup(contest=contest)
+    elif contest[:-1].isdigit() and contest[-1].isalpha():
+        win.destroy()
+        qSetup(contest[:-1],contest[-1])
+    else:
+        MyWord = Label(win , text= "Invalid Code", font=("Arial", 10))
+        MyWord.grid(row=5,column=1,pady=10)
     
-
+def qSetup(contest,question):
     today = date.today()
     d4 = today.strftime("%d %b %Y")
-
-    cwd = os.getcwd()  
-
-    # contest = sys.argv[1]
-    # contest = "1551"
-    contest = contest_var.get()
+    cwd = os.getcwd() 
+    folder_name =  contest +question + " " + d4
+    tmplate_path = os.path.join(cwd, "Template.cpp") 
+    directory = os.path.join(cwd,"Selected Questions")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    pth = os.path.join(directory, folder_name) 
+    os.makedirs(pth)
+    os.chdir(pth)
     
+    file_path = os.path.join(pth, question + ".cpp") 
+    
+    inp_file = open("input.txt", "w")
+    out_file = open("output.txt", "w")
+    copyfile(tmplate_path, file_path)
+    
+    
+    qURL = default_url + "problemset/problem/" + contest + "/" + question
+    webbrowser.open(qURL, new=2)
+    html_text  =  requests.get(qURL).text
+    
+    con_soup = BeautifulSoup(html_text,features="html.parser")
+    inps = con_soup.find_all('div',class_="input")
+    outs = con_soup.find_all('div',class_="output")
+    if len(inps) > 1:
+        qfile = open(file_path,"a")
+        qfile.write('\n/*\n')
+        for index,(inp,out) in enumerate(zip(inps,outs)):
+            qfile.write("Case: " + str(index+1) + "\n")
+            
+            qfile.write(inp.pre.text.strip("\r"))
+            qfile.write("\n****\n")
+            
+            qfile.write(out.pre.text.strip("\r"))
+            qfile.write("\n*********************\n\n")
+            
+        qfile.write('\n*/')
+
+    inp_file.write(inps[0].pre.text.strip("\r"))
+    out_file.write(outs[0].pre.text.strip("\r"))
+            
+    os.system("code " +'"' +str(pth) +'/"' )
+   
+   
+    
+    
+def ContestSetup(contest):
+    
+    today = date.today()
+    d4 = today.strftime("%d %b %Y")
+    cwd = os.getcwd()  
 
     folder_name =  contest + " " + d4
     tmplate_path = os.path.join(cwd, "Template.cpp") 
@@ -110,14 +164,22 @@ def makeSetup(something = 0):
         con_soup = BeautifulSoup(con_text,features="html.parser")
         inps = con_soup.find_all('div',class_="input")
         outs = con_soup.find_all('div',class_="output")
-        for inp in inps:
-            inp_file.write(inp.pre.text[1:])
-            if len(inps) > 1:
-                inp_file.write("\n\n*********************\n\n")
-        for out in outs:
-            out_file.write(out.pre.text[1:])
-            if len(outs) > 1:
-                out_file.write("\n\n*********************\n\n")
+        if len(inps) > 1:
+            qfile = open(file_path,"a")
+            qfile.write('\n/*\n')
+            for index,(inp,out) in enumerate(zip(inps,outs)):
+                qfile.write("Case: " + str(index+1) + "\n")
+                
+                qfile.write(inp.pre.text.strip("\r"))
+                qfile.write("\n****\n")
+                
+                qfile.write(out.pre.text.strip("\r"))
+                qfile.write("\n*********************\n\n")
+                
+            qfile.write('\n*/')
+
+        inp_file.write(inps[0].pre.text.strip("\r"))
+        out_file.write(outs[0].pre.text.strip("\r"))
 
     os.system("code " +'"' +str(new_path) +'/"' )
 
@@ -133,7 +195,7 @@ makeTable(contestsListTr)
 
 
 
-MyWord = Label(win , text= "Enter Contest Number", font=("Arial Bold", 14))
+MyWord = Label(win , text= "Enter Contest Number or Question ID", font=("Arial Bold", 14))
 MyWord.grid(row=2,column=1,padx= 12,pady=10)
 cnts = Entry(win,textvariable = contest_var, font=('calibre',10,'normal'))
 cnts.grid(row=3,column=1)
