@@ -68,10 +68,11 @@ def makeSetup(something = 0):
         MyWord.grid(row=5,column=1,pady=10)
     
 def qSetup(contest,question):
+    question = question.upper()
     today = date.today()
     d4 = today.strftime("%d %b %Y")
     cwd = os.getcwd() 
-    folder_name =  contest +question + " " + d4
+    folder_name =  contest + question + " " + d4
     tmplate_path = os.path.join(cwd, "Template.cpp") 
     directory = os.path.join(cwd,"Selected Questions")
     if not os.path.exists(directory):
@@ -98,18 +99,15 @@ def qSetup(contest,question):
         qfile = open(file_path,"a")
         qfile.write('\n/*\n')
         for index,(inp,out) in enumerate(zip(inps,outs)):
-            qfile.write("Case: " + str(index+1) + "\n")
-            
-            qfile.write(inp.pre.text.strip("\r"))
-            qfile.write("\n****\n")
-            
-            qfile.write(out.pre.text.strip("\r"))
-            qfile.write("\n*********************\n\n")
-            
+                qfile.write("Case: " + str(index+1) + "\n")
+                qfile.write(str(inp.pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", ""))
+                qfile.write("\n****\n")
+                qfile.write(str(out.pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", ""))
+                qfile.write("\n*********************\n\n")
         qfile.write('\n*/')
-
-    inp_file.write(inps[0].pre.text.strip("\r"))
-    out_file.write(outs[0].pre.text.strip("\r"))
+    
+    inp_file.write(str(inps[0].pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", ""))
+    out_file.write(str(outs[0].pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", "")) 
             
     os.system("code " +'"' +str(pth) +'/"' )
    
@@ -168,18 +166,15 @@ def ContestSetup(contest):
             qfile = open(file_path,"a")
             qfile.write('\n/*\n')
             for index,(inp,out) in enumerate(zip(inps,outs)):
-                qfile.write("Case: " + str(index+1) + "\n")
-                
-                qfile.write(inp.pre.text.strip("\r"))
-                qfile.write("\n****\n")
-                
-                qfile.write(out.pre.text.strip("\r"))
-                qfile.write("\n*********************\n\n")
-                
+                    qfile.write("Case: " + str(index+1) + "\n")
+                    qfile.write(str(inp.pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", ""))
+                    qfile.write("\n****\n")
+                    qfile.write(str(out.pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", ""))
+                    qfile.write("\n*********************\n\n")
             qfile.write('\n*/')
-
-        inp_file.write(inps[0].pre.text.strip("\r"))
-        out_file.write(outs[0].pre.text.strip("\r"))
+        
+        inp_file.write(str(inps[0].pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", ""))
+        out_file.write(str(outs[0].pre).replace("<br/>", "\n").replace("<pre>", "").replace("</pre>", "")) 
 
     os.system("code " +'"' +str(new_path) +'/"' )
 
